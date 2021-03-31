@@ -11,15 +11,17 @@ const rglr = readFileSync(`${__dirname}/../_fonts/Inter-Regular.woff2`).toString
 const bold = readFileSync(`${__dirname}/../_fonts/Inter-Bold.woff2`).toString('base64');
 const mono = readFileSync(`${__dirname}/../_fonts/Vera-Mono.woff2`).toString('base64');
 
+const bgImage='https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1'
+
 function getCss(theme: string, fontSize: string) {
     let background = 'white';
-    let foreground = 'black';
-    let radial = 'lightgray';
+    let foreground = 'white';
+    // let radial = 'lightgray';
 
     if (theme === 'dark') {
         background = 'black';
         foreground = 'white';
-        radial = 'dimgray';
+        // radial = 'dimgray';
     }
     return `
     @font-face {
@@ -44,16 +46,40 @@ function getCss(theme: string, fontSize: string) {
       }
 
     body {
-        background: ${background};
-        background-image: radial-gradient(circle at 25px 25px, ${radial} 2%, transparent 0%), radial-gradient(circle at 75px 75px, ${radial} 2%, transparent 0%);
-        background-size: 100px 100px;
+        background-color: ${background};
         height: 100vh;
         display: flex;
         text-align: center;
         align-items: center;
         justify-content: center;
+        position: relative;
+        margin: 0;
+        padding: 0;
     }
 
+    .bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+    .bg > div{
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+    .bg > div img {
+        object-fit:cover;
+    }
+    .bg_overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-color: rgba(0,0,0,0.4);
+    }
     code {
         color: #D400FF;
         font-family: 'Vera';
@@ -65,16 +91,35 @@ function getCss(theme: string, fontSize: string) {
         content: '\`';
     }
 
+    .content {
+        z-index:2;
+        line-height: 1.1;
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 10px;
+        padding: 50px;
+        max-width: 600px;
+    }
+
     .logo-wrapper {
         display: flex;
         align-items: center;
         align-content: center;
         justify-content: center;
-        justify-items: center;
+        justify-items: center;  
+        z-index:3;
+        height: 60px;
+        position:absolute;
+        right: 0;
+        top: 0;
+        padding: 5px;
+        background: white;
     }
 
     .logo {
-        margin: 0 75px;
+        display: inline-block;
+        width: auto;
+        height: 100%;
+        z-index:3;
     }
 
     .plus {
@@ -84,7 +129,7 @@ function getCss(theme: string, fontSize: string) {
     }
 
     .spacer {
-        margin: 150px;
+        margin: 40px;
     }
 
     .emoji {
@@ -99,8 +144,11 @@ function getCss(theme: string, fontSize: string) {
         font-size: ${sanitizeHtml(fontSize)};
         font-style: normal;
         color: ${foreground};
-        line-height: 1.8;
-    }`;
+        line-height: 1.2;
+    }
+    .heading p{margin: 0;}
+    `;
+    
 }
 
 export function getHtml(parsedReq: ParsedRequest) {
@@ -114,17 +162,22 @@ export function getHtml(parsedReq: ParsedRequest) {
         ${getCss(theme, fontSize)}
     </style>
     <body>
-        <div>
-            <div class="spacer">
-            <div class="logo-wrapper">
-                ${images.map((img, i) =>
-                    getPlusSign(i) + getImage(img, widths[i], heights[i])
-                ).join('')}
+        <div class="bg">
+            <div>
+                ${getBgImage(bgImage)}
+                <div class="bg_overlay"></div>
             </div>
-            <div class="spacer">
-            <div class="heading">${emojify(
-                md ? marked(text) : sanitizeHtml(text)
-            )}
+        </div>
+        <div class="logo-wrapper">
+        ${images.map((img, i) =>
+            getPlusSign(i) + getImage(img, widths[i], heights[i])
+        ).join('')}
+    </div>
+        <div class="content">
+         <div class="heading">${emojify(
+              md ? marked(text) : sanitizeHtml(text)
+           )}
+         </div>
             </div>
         </div>
     </body>
@@ -134,6 +187,16 @@ export function getHtml(parsedReq: ParsedRequest) {
 function getImage(src: string, width ='auto', height = '225') {
     return `<img
         class="logo"
+        alt="Generated Image"
+        src="${sanitizeHtml(src)}"
+        width="${sanitizeHtml(width)}"
+        height="${sanitizeHtml(height)}"
+    />`
+}
+
+function getBgImage(src: string, width ='100%', height = '100%') {
+    return `<img
+        class="bg-image"
         alt="Generated Image"
         src="${sanitizeHtml(src)}"
         width="${sanitizeHtml(width)}"

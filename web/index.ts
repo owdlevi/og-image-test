@@ -142,16 +142,14 @@ const markdownOptions: DropdownOption[] = [
 ];
 
 const imageLightOptions: DropdownOption[] = [
-    { text: 'Vercel', value: 'https://assets.vercel.com/image/upload/front/assets/design/vercel-triangle-black.svg' },
-    { text: 'Next.js', value: 'https://assets.vercel.com/image/upload/front/assets/design/nextjs-black-logo.svg' },
-    { text: 'Hyper', value: 'https://assets.vercel.com/image/upload/front/assets/design/hyper-color-logo.svg' },
+    { text: 'OWD', value: 'https://onlinewebdesign.ro/_next/static/images/online-webdesign-logo-9ddcfc4f40adb03b73cf4a69f400d8a3.svg' },
+    { text: 'F&C', value: 'https://furculitasicutit.ro/assets/logo-furculita-si-cutit.svg' },
 ];
 
 const imageDarkOptions: DropdownOption[] = [
 
-    { text: 'Vercel', value: 'https://assets.vercel.com/image/upload/front/assets/design/vercel-triangle-white.svg' },
-    { text: 'Next.js', value: 'https://assets.vercel.com/image/upload/front/assets/design/nextjs-white-logo.svg' },
-    { text: 'Hyper', value: 'https://assets.vercel.com/image/upload/front/assets/design/hyper-bw-logo.svg' },
+    { text: 'OWD', value: 'https://onlinewebdesign.ro/_next/static/images/online-webdesign-logo-9ddcfc4f40adb03b73cf4a69f400d8a3.svg' },
+    { text: 'F&C', value: 'https://furculitasicutit.ro/assets/logo-furculita-si-cutit.svg' },
 ];
 
 const widthOptions = [
