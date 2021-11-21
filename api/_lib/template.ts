@@ -1,56 +1,57 @@
+import { readFileSync } from "fs";
+// import marked from "marked";
+import { sanitizeHtml } from "./sanitizer";
+import { ParsedRequest } from "./types";
+// const twemoji = require("twemoji");
+// const twOptions = { folder: "svg", ext: ".svg" };
+// const emojify = (text: string) => twemoji.parse(text, twOptions);
 
-import { readFileSync } from 'fs';
-import marked from 'marked';
-import { sanitizeHtml } from './sanitizer';
-import { ParsedRequest } from './types';
-const twemoji = require('twemoji');
-const twOptions = { folder: 'svg', ext: '.svg' };
-const emojify = (text: string) => twemoji.parse(text, twOptions);
+const rglr = readFileSync(`${__dirname}/../_fonts/Roboto-Regular.ttf`).toString(
+  "base64"
+);
+const medium = readFileSync(
+  `${__dirname}/../_fonts/Roboto-Medium.ttf`
+).toString("base64");
+const nunitoRegular = readFileSync(
+  `${__dirname}/../_fonts/Nunito-Regular.ttf`
+).toString("base64");
 
-const rglr = readFileSync(`${__dirname}/../_fonts/Inter-Regular.woff2`).toString('base64');
-const bold = readFileSync(`${__dirname}/../_fonts/Inter-Bold.woff2`).toString('base64');
-const mono = readFileSync(`${__dirname}/../_fonts/Vera-Mono.woff2`).toString('base64');
+function getCss(theme: string) {
+  let foreground = "white";
+  // let radial = 'lightgray';
 
-const bgImage='https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1'
-
-function getCss(theme: string, fontSize: string) {
-    let background = 'white';
-    let foreground = 'white';
-    // let radial = 'lightgray';
-
-    if (theme === 'dark') {
-        background = 'black';
-        foreground = 'white';
-        // radial = 'dimgray';
-    }
-    return `
+  if (theme === "dark") {
+    foreground = "white";
+    // radial = 'dimgray';
+  }
+  return `
+    
     @font-face {
-        font-family: 'Inter';
+        font-family: 'Roboto';
         font-style:  normal;
         font-weight: normal;
-        src: url(data:font/woff2;charset=utf-8;base64,${rglr}) format('woff2');
+        src: url(data:font/woff2;charset=utf-8;base64,${rglr}) format('ttf');
     }
 
     @font-face {
-        font-family: 'Inter';
+        font-family: 'Roboto';
         font-style:  normal;
-        font-weight: bold;
-        src: url(data:font/woff2;charset=utf-8;base64,${bold}) format('woff2');
+        font-weight: 500;
+        src: url(data:font/woff2;charset=utf-8;base64,${medium}) format('ttf');
     }
 
     @font-face {
-        font-family: 'Vera';
+        font-family: 'Nunito';
         font-style: normal;
         font-weight: normal;
-        src: url(data:font/woff2;charset=utf-8;base64,${mono})  format("woff2");
+        src: url(data:font/woff2;charset=utf-8;base64,${nunitoRegular})  format("ttf");
       }
 
     body {
-        background-color: ${background};
         height: 100vh;
         display: flex;
         text-align: center;
-        align-items: center;
+        align-items: flex-end;
         justify-content: center;
         position: relative;
         margin: 0;
@@ -78,7 +79,7 @@ function getCss(theme: string, fontSize: string) {
         left: 0;
         bottom: 0;
         right: 0;
-        background-color: rgba(0,0,0,0.4);
+     
     }
     code {
         color: #D400FF;
@@ -94,10 +95,11 @@ function getCss(theme: string, fontSize: string) {
     .content {
         z-index:2;
         line-height: 1.1;
-        background-color: rgba(0,0,0,0.5);
-        border-radius: 10px;
-        padding: 50px;
+        background-image: linear-gradient(to bottom, #5669c3, #283673);
+        border-radius: 16px;
+        padding: 20px;
         max-width: 600px;
+        margin-bottom:60px;
     }
 
     .logo-wrapper {
@@ -109,10 +111,22 @@ function getCss(theme: string, fontSize: string) {
         z-index:3;
         height: 60px;
         position:absolute;
+        left: 0;
+        top: 0;
+        padding: 5px;
+    }
+    .secondary-logo-wrapper{
+        display: flex;
+        align-items: center;
+        align-content: center;
+        justify-content: center;
+        justify-items: center;  
+        z-index:3;
+        height: 60px;
+        position:absolute;
         right: 0;
         top: 0;
         padding: 5px;
-        background: white;
     }
 
     .logo {
@@ -140,43 +154,54 @@ function getCss(theme: string, fontSize: string) {
     }
     
     .heading {
-        font-family: 'Inter', sans-serif;
-        font-size: ${sanitizeHtml(fontSize)};
+        font-family: 'Roboto';
+        font-size: 48px;
+        font-weight: 500;
         font-style: normal;
         color: ${foreground};
-        line-height: 1.2;
+        line-height: 1.4;
+    }
+    .description{
+        font-family: 'Roboto', sans-serif;
+        font-size: 24px;
+        font-style: normal;
+        color: ${foreground};
+        line-height: 1.4;
+        max-width: 600px;
+        margin-top: 20px;
     }
     .heading p{margin: 0;}
     `;
-    
 }
 
 export function getHtml(parsedReq: ParsedRequest) {
-    const { text, theme, md, fontSize, images, widths, heights } = parsedReq;
-    return `<!DOCTYPE html>
+  const { title, theme, description, logo, secondaryLogo, backgroundImage } =
+    parsedReq;
+  return `<!DOCTYPE html>
 <html>
     <meta charset="utf-8">
     <title>Generated Image</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        ${getCss(theme, fontSize)}
+        ${getCss(theme)}
     </style>
     <body>
         <div class="bg">
             <div>
-                ${getBgImage(bgImage)}
+                ${getBgImage(backgroundImage)}
                 <div class="bg_overlay"></div>
             </div>
         </div>
         <div class="logo-wrapper">
-        ${images.map((img, i) =>
-            getPlusSign(i) + getImage(img, widths[i], heights[i])
-        ).join('')}
-    </div>
+            ${getImage(logo, "200", "60")}
+        </div>
+        <div class="secondary-logo-wrapper">
+            ${getImage(secondaryLogo, "200", "60")}
+        </div>
         <div class="content">
-         <div class="heading">${emojify(
-              md ? marked(text) : sanitizeHtml(text)
-           )}
+         <div class="heading">${title}</div>
+         <div class="description">
+         ${description}
          </div>
             </div>
         </div>
@@ -184,26 +209,24 @@ export function getHtml(parsedReq: ParsedRequest) {
 </html>`;
 }
 
-function getImage(src: string, width ='auto', height = '225') {
-    return `<img
+function getImage(src: string, width = "auto", height = "225") {
+  return src
+    ? `<img
         class="logo"
         alt="Generated Image"
         src="${sanitizeHtml(src)}"
         width="${sanitizeHtml(width)}"
         height="${sanitizeHtml(height)}"
     />`
+    : ``;
 }
 
-function getBgImage(src: string, width ='100%', height = '100%') {
-    return `<img
+function getBgImage(src: string, width = "100%", height = "100%") {
+  return `<img
         class="bg-image"
         alt="Generated Image"
         src="${sanitizeHtml(src)}"
         width="${sanitizeHtml(width)}"
         height="${sanitizeHtml(height)}"
-    />`
-}
-
-function getPlusSign(i: number) {
-    return i === 0 ? '' : '<div class="plus">+</div>';
+    />`;
 }
