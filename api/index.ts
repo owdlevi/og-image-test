@@ -2,14 +2,33 @@ import { IncomingMessage, ServerResponse } from "http";
 import { parseRequest } from "./_lib/parser";
 import { getScreenshot } from "./_lib/chromium";
 import { getHtml } from "./_lib/template";
+import { VercelRequest, VercelResponse } from "@vercel/node";
 
 const isDev = !process.env.AWS_REGION;
 const isHtmlDebug = process.env.OG_HTML_DEBUG === "1";
 
-export default async function handler(
-  req: IncomingMessage,
-  res: ServerResponse
-) {
+const allowCors =
+  (fn: any) => async (req: VercelRequest, res: VercelResponse) => {
+    res.setHeader("Access-Control-Allow-Credentials", 1);
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    // another common pattern
+    // res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+    );
+    if (req.method === "OPTIONS") {
+      res.status(200).end();
+      return;
+    }
+    return await fn(req, res);
+  };
+
+async function handler(req: IncomingMessage, res: ServerResponse) {
   try {
     const parsedReq = parseRequest(req);
     const html = getHtml(parsedReq);
@@ -34,3 +53,4 @@ export default async function handler(
     console.error(e);
   }
 }
+module.exports = allowCors(handler);
